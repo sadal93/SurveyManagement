@@ -3,10 +3,12 @@ package main
 import (
 	pb "SurveyManagement/api"
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
+	"labix.org/v2/mgo/bson"
 	"log"
 	"net"
 )
@@ -18,42 +20,7 @@ const (
 var clientOptions  = options.Client().ApplyURI("mongodb://localhost:27017")
 var client, err = mongo.Connect(context.TODO(), clientOptions)
 
-var surveyCollection = client.Database("test").Collection("surveys")
-var questionCollection = client.Database("test").Collection("questions")
-
-type Survey struct {
-	ID primitive.ObjectID  `bson:"_id,omitempty"`
-	Description string
-	Questions[]* pb.Question
-}
-
-type Question struct{
-	ID primitive.ObjectID `bson:"_id,omitempty"`
-	Language string
-	Text string
-	Type string
-	AnswerOptions* pb.Question_AnswerOptions
-}
-
 type server struct{}
-
-func createSurveyDocument(doc Survey) {
-	insertResult, err := surveyCollection.InsertOne(context.TODO(), doc)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Print(insertResult)
-}
-
-func createQuestionDocument(doc Question) {
-	insertResult, err := questionCollection.InsertOne(context.TODO(), doc)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Print(insertResult)
-}
 
 func main() {
 	lis, err := net.Listen("tcp", port)
@@ -84,4 +51,49 @@ func (s *server)  CreateQuestion(ctx context.Context, questionData *pb.Question)
 
 	log.Printf("Question Created: %v", question)
 	return &pb.Question{Id: questionData.Id, Language: questionData.Language, Type: questionData.Type, AnswerOptions: questionData.AnswerOptions}, nil
+}
+
+func (s *server) DeleteQuestion(ctx context.Context, question *pb.QuestionID) (*pb.Empty, error) {
+
+	objectID, err := primitive.ObjectIDFromHex(question.QuestionID)
+	filter := bson.M{"_id": objectID}
+	deleteResult, err := questionCollection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Deleted %v documents in the questions collection\n", deleteResult.DeletedCount)
+
+	return &pb.Empty{}, nil
+}
+
+func (s *server) GetQuestion(ctx context.Context, question *pb.QuestionID) (*pb.Question, error) {
+	var result Question
+	objectID, err := primitive.ObjectIDFromHex(question.QuestionID)
+	filter := bson.M{"_id": objectID}
+
+	err = questionCollection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return &pb.Question{Id: result.ID.Hex(), Language: result.Language, Text: result.Text, Type: result.Type, AnswerOptions: result.AnswerOptions }, nil
+
+}
+
+func (s *server) GetAllQuestions(ctx context.Context, empty *pb.Empty) (*pb.QuestionArray, error) {
+
+	var questions []*pb.Question
+	documents := getAllQuestions()
+	for _, document := range documents{
+		var question *pb.Question = new(pb.Question)
+		question.Id = document.ID.Hex()
+		question.Language = document.Language
+		question.Text = document.Text
+		question.Type = document.Type
+		question.AnswerOptions = document.AnswerOptions
+
+
+		questions = append(questions, question)
+	}
+	return &pb.QuestionArray{Questions: questions}, nil
 }

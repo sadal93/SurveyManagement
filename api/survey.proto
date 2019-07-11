@@ -26,8 +26,23 @@ message Question{
     string language = 2;
     string text = 3;
     string type = 4;
-    repeated string study = 5;
-    AnswerOptions answerOptions = 6;
+    AnswerOptions answerOptions = 5;
+}
+
+message QuestionID{
+    string questionID = 1;
+}
+
+message QuestionArray{
+    repeated Question questions = 1;
+}
+
+message Language{
+    string language = 1;
+}
+
+message Empty{
+
 }
 
 message SurveyData{
@@ -35,9 +50,15 @@ message SurveyData{
     string id = 1;
     string description = 2;
     repeated Question questions = 3;
+    repeated string study = 4;
 }
 
 service Survey{
     rpc CreateSurvey(SurveyData) returns (SurveyData);
+
     rpc CreateQuestion(Question) returns (Question);
+    rpc DeleteQuestion(QuestionID) returns (Empty);
+    rpc GetQuestion(QuestionID) returns (Question);
+    rpc GetAllQuestions (Empty) returns (QuestionArray);
+   
 }
