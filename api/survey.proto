@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package api;
+
+message Question{
+
+    message AnswerOptions{
+        string dataType = 1;
+        string value = 2;
+        repeated string multipleOptions = 3;
+        repeated MatrixOptions matrixOptions = 4;
+        repeated NextQuestion nextQuestion = 5;
+    }
+
+    message MatrixOptions{
+        string text = 1;
+        repeated string options = 2;
+    }
+
+    message NextQuestion{
+        string selectedOption = 1;
+        string question = 2;
+    }
+
+    string id = 1;
+    string language = 2;
+    string text = 3;
+    string type = 4;
+    repeated string study = 5;
+    AnswerOptions answerOptions = 6;
+}
+
+message SurveyData{
+
+    string id = 1;
+    string description = 2;
+    repeated Question questions = 3;
+}
+
+service Survey{
+    rpc CreateSurvey(SurveyData) returns (SurveyData);
+    rpc CreateQuestion(Question) returns (Question);
+}
