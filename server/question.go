@@ -11,16 +11,15 @@ import (
 
 type Question struct{
 	ID primitive.ObjectID `bson:"_id,omitempty"`
-	Language string
-	Text string
 	Type string
-	AnswerOptions* pb.Question_AnswerOptions
+	QuestionsWithLanguage[]* pb.Question_QuestionWithLanguage
 }
 
 var questionCollection = client.Database("test").Collection("questions")
-var questionResults []*Question
+
 
 func getAllQuestions() []*Question{
+	var questionResults []*Question
 	if err != nil{
 		log.Fatal(err)
 	}
@@ -36,6 +35,30 @@ func getAllQuestions() []*Question{
 		if err != nil {
 			log.Fatal(err)
 		}
+		questionResults = append(questionResults, &elem)
+	}
+	return questionResults
+}
+
+func getQuestionsByLanguage(language string) []*Question{
+	var questionResults []*Question
+	findOptions := options.Find()
+	filter := bson.M{"language": language}
+
+	cur, err := questionCollection.Find(context.TODO(), filter, findOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for cur.Next(context.TODO()) {
+
+		// create a value into which the single document can be decoded
+		var elem Question
+		err := cur.Decode(&elem)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		questionResults = append(questionResults, &elem)
 	}
 	return questionResults

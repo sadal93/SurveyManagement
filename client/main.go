@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	address     = "localhost:50051"
+	address     = "localhost:50052"
 )
 
 func createSurvey(c pb.SurveyClient, survey pb.SurveyData)  {
@@ -28,7 +28,7 @@ func createQuestion(c pb.SurveyClient, question pb.Question)  {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.CreateQuestion(ctx, &pb.Question{Language: question.Language, Text:question.Text, Type: question.Type, AnswerOptions: question.AnswerOptions})
+	r, err := c.CreateQuestion(ctx, &pb.Question{Type: question.Type, QuestionWithLanguage: question.QuestionWithLanguage})
 	if err != nil {
 		log.Fatalf("could not insert: %v", err)
 	}
@@ -46,39 +46,70 @@ func main() {
 
 	c := pb.NewSurveyClient(conn)
 
-	language := "english"
-	text := "This is question 1"
-	qType := "multi"
+	qType := "matrix"
 
-	matrixText1 := "How happy are you?"
-	options1 := []string{"happy", "normal", "sad"}
-	matrixOption1 := &pb.Question_MatrixOptions{Text: matrixText1, Options: options1}
+	languageEn := "english"
+	textEn := "This is question 1"
 
-	matrixText2 := "How are you feeling?"
-	options2 := []string{"good", "normal", "bad"}
-	matrixOption2 := &pb.Question_MatrixOptions{Text: matrixText2, Options: options2}
+	matrixText1En := "How happy are you?"
+	options1En := []string{"happy", "normal", "sad"}
+	matrixOption1En := &pb.Question_MatrixOptions{Text: matrixText1En, Options: options1En}
 
-	var matrixOptions []*pb.Question_MatrixOptions
-	matrixOptions = append(matrixOptions, matrixOption1, matrixOption2)
+	matrixText2En := "How are you feeling?"
+	options2En := []string{"good", "normal", "bad"}
+	matrixOption2En := &pb.Question_MatrixOptions{Text: matrixText2En, Options: options2En}
 
-	multipleOptions := []string{"a", "b", "c"}
+	var matrixOptionsEn []*pb.Question_MatrixOptions
+	matrixOptionsEn = append(matrixOptionsEn, matrixOption1En, matrixOption2En)
+
+	languageDe := "german"
+	textDe := "Das ist Frage 1"
+
+	matrixText1De := "Wie glucklisch sind Sie?"
+	options1De := []string{"sehr", "normal", "traurig"}
+	matrixOption1De := &pb.Question_MatrixOptions{Text: matrixText1De, Options: options1De}
+
+	matrixText2De := "Wie geht es Ihnen?"
+	options2De := []string{"gut", "normal", "schlecht"}
+	matrixOption2De := &pb.Question_MatrixOptions{Text: matrixText2De, Options: options2De}
+
+	var matrixOptionsDe []*pb.Question_MatrixOptions
+	matrixOptionsDe = append(matrixOptionsDe, matrixOption1De, matrixOption2De)
+
+
+
+	/*multipleOptions := []string{"a", "b", "c"}
 	selectedOption := "a"
 	next := "12345"
 
-	nextQuestion := &pb.Question_NextQuestion{SelectedOption: selectedOption, Question: next}
-	var nextQuestions []*pb.Question_NextQuestion
+	nextQuestion := &pb.Question_HideQuestion{SelectedOption: selectedOption, Question: next}
+	var nextQuestions []*pb.Question_HideQuestion
 	nextQuestions = append(nextQuestions, nextQuestion)
+	answerOptions2 := &pb.Question_AnswerOptions{MultipleOptions: multipleOptions, NextQuestion: nextQuestions}*/
 
-	answerOptions1 := &pb.Question_AnswerOptions{MatrixOptions: matrixOptions}
-	answerOptions2 := &pb.Question_AnswerOptions{MultipleOptions: multipleOptions, NextQuestion: nextQuestions}
+	answerOptions1En := &pb.Question_AnswerOptions{MatrixOptions: matrixOptionsEn}
+	answerOptions1De := &pb.Question_AnswerOptions{MatrixOptions: matrixOptionsDe}
 
-	var question1 = &pb.Question{Language: language, Text: text, Type: qType, AnswerOptions: answerOptions1}
-	var question2  = &pb.Question{Language: language, Text: text, Type: qType, AnswerOptions: answerOptions2}
+	questionWithLanguageEn := &pb.Question_QuestionWithLanguage{Language: languageEn, Text:	textEn, AnswerOptions:answerOptions1En}
+	questionWithLanguageDe := &pb.Question_QuestionWithLanguage{Language: languageDe, Text:	textDe, AnswerOptions:answerOptions1De}
+
+	var questionsWithLanguage []*pb.Question_QuestionWithLanguage
+	questionsWithLanguage = append(questionsWithLanguage, questionWithLanguageEn, questionWithLanguageDe)
+
+
+
+
+
+
+
+	var question1 = &pb.Question{Id: "5d38cad2fc0b1b1fd7444274",Type: qType, QuestionWithLanguage: questionsWithLanguage}
+	//var question2  = &pb.Question{Type: qType, AnswerOptions: answerOptions2}
 
 	var questions []*pb.Question
-	questions = append(questions, question1, question2)
+	questions = append(questions, question1)
 
 	var survey = pb.SurveyData{ Description: "This is a Survey", Questions: questions}
-	//createQuestion(c, question)
+	//createQuestion(c, question1)
 	createSurvey(c, survey)
+
 }
