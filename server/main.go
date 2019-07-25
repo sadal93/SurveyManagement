@@ -2,7 +2,6 @@ package main
 
 import (
 	pb "SurveyManagement/api"
-	sm "StudyManagement/api"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -12,7 +11,6 @@ import (
 	"labix.org/v2/mgo/bson"
 	"log"
 	"net"
-	"time"
 )
 
 const (
@@ -46,7 +44,7 @@ func main() {
 
 func (s *server)  CreateSurvey(ctx context.Context, surveyData *pb.SurveyData) (*pb.SurveyData, error) {
 
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	/*conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -59,13 +57,56 @@ func (s *server)  CreateSurvey(ctx context.Context, surveyData *pb.SurveyData) (
 	if err != nil {
 		log.Fatalf("could not retrieve: %v", err)
 	}
-	fmt.Println("Studies: " , r)
+	fmt.Println("Studies: " , r)*/
 
 	survey := Survey{primitive.NewObjectID(), surveyData.Description, surveyData.Questions}
 	createSurveyDocument(survey)
 
 	log.Printf("Survey Created: %v", survey)
 	return &pb.SurveyData{Id: surveyData.Id, Description: surveyData.Description, Questions: surveyData.Questions}, nil
+}
+
+func (s *server) DeleteSurvey(ctx context.Context, survey *pb.SurveyID) (*pb.EmptySurvey, error) {
+
+	objectID, err := primitive.ObjectIDFromHex(survey.SurveyID)
+	filter := bson.M{"_id": objectID}
+	deleteResult, err := surveyCollection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Deleted %v documents in the questions collection\n", deleteResult.DeletedCount)
+
+	return &pb.EmptySurvey{}, nil
+}
+
+func (s *server) GetSurvey(ctx context.Context, survey *pb.SurveyID) (*pb.SurveyData, error) {
+	var result Survey
+	objectID, err := primitive.ObjectIDFromHex(survey.SurveyID)
+	filter := bson.M{"_id": objectID}
+
+	err = surveyCollection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return &pb.SurveyData{Id: result.ID.Hex(), Description: result.Description, Questions: result.Questions }, nil
+
+}
+
+func (s *server) GetAllSurveys(ctx context.Context, empty *pb.EmptySurvey) (*pb.SurveyArray, error) {
+
+	var surveys []*pb.SurveyData
+	documents := getAllSurveys()
+	for _, document := range documents{
+		var survey *pb.SurveyData = new(pb.SurveyData)
+		survey.Id = document.ID.Hex()
+		survey.Description = document.Description
+		survey.Questions = document.Questions
+
+
+		surveys = append(surveys, survey)
+	}
+	return &pb.SurveyArray{Surveys: surveys}, nil
 }
 
 func (s *server)  CreateQuestion(ctx context.Context, questionData *pb.Question) (*pb.Question, error) {

@@ -49,8 +49,16 @@ message QuestionID{
     string questionID = 1;
 }
 
+message SurveyID{
+    string surveyID = 1;
+}
+
 message QuestionArray{
     repeated Question questions = 1;
+}
+
+message SurveyArray{
+    repeated SurveyData surveys = 1;
 }
 
 message EmptySurvey{
@@ -62,15 +70,17 @@ message SurveyData{
     string id = 1;
     string description = 2;
     repeated Question questions = 3;
-    string study = 4;
 }
 
 service Survey{
-    rpc CreateSurvey(SurveyData) returns (SurveyData);
+    rpc CreateSurvey (SurveyData) returns (SurveyData);
+    rpc DeleteSurvey (SurveyID) returns (EmptySurvey);
+    rpc GetSurvey (SurveyID) returns (SurveyData);
+    rpc GetAllSurveys (EmptySurvey) returns (SurveyArray);
 
-    rpc CreateQuestion(Question) returns (Question);
-    rpc DeleteQuestion(QuestionID) returns (EmptySurvey);
-    rpc GetQuestion(QuestionID) returns (Question);
+    rpc CreateQuestion (Question) returns (Question);
+    rpc DeleteQuestion (QuestionID) returns (EmptySurvey);
+    rpc GetQuestion (QuestionID) returns (Question);
     rpc GetAllQuestions (EmptySurvey) returns (QuestionArray);
 
 }
