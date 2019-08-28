@@ -11,6 +11,8 @@ import (
 type Survey struct {
 	ID primitive.ObjectID  `bson:"_id,omitempty"`
 	Description string
+	Type string
+	Study string
 	Questions[]* pb.Question
 }
 

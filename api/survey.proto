@@ -41,7 +41,8 @@ message Question{
 
     string id = 1;
     string type = 2;
-    repeated QuestionWithLanguage questionWithLanguage = 3;
+    bytes image = 3;
+    repeated QuestionWithLanguage questionWithLanguage = 4;
 
 }
 
@@ -69,8 +70,11 @@ message SurveyData{
 
     string id = 1;
     string description = 2;
-    repeated Question questions = 3;
+    string type = 3;
+    string study = 4;
+    repeated Question questions = 5;
 }
+
 
 service Survey{
     rpc CreateSurvey (SurveyData) returns (SurveyData);

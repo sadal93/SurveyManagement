@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
+	"io/ioutil"
 	"labix.org/v2/mgo/bson"
 	"log"
 	"net"
@@ -27,6 +28,7 @@ var client, err = mongo.Connect(context.TODO(), clientOptions)
 type server struct{}
 
 func main() {
+	//uploadFile()
 
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
@@ -39,8 +41,47 @@ func main() {
 		log.Fatalf("failed to serve: %v", err )
 	}
 
-
 }
+
+/*func uploadFile(){
+	file, err := ioutil.ReadFile("barn.jpg")
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	//defer file.Close()
+
+	//reader := bufio.NewReader(file)
+	//buffer := bytes.NewBuffer(make([] byte,0))
+
+	//var chunk []byte
+	//var eol bool
+	//var str_array []string
+
+	/*for {
+		/*if chunk, eol, err = reader.ReadLine();
+		err != nil {
+			break
+		}*/
+		//chunk, err = reader.ReadByte()
+	//	buffer.Write(chunk)
+		/*if !eol {
+			//str_array = append(str_array, buffer.String())
+			//buffer.Reset()
+		}
+	}*/
+
+	/*if err == io.EOF {
+		err = nil
+	}
+
+	fmt.Println(file)
+
+	qfile := File{primitive.NewObjectID(), file, ""}
+	createFileDocument(qfile)
+
+}*/
 
 func (s *server)  CreateSurvey(ctx context.Context, surveyData *pb.SurveyData) (*pb.SurveyData, error) {
 
@@ -59,7 +100,7 @@ func (s *server)  CreateSurvey(ctx context.Context, surveyData *pb.SurveyData) (
 	}
 	fmt.Println("Studies: " , r)*/
 
-	survey := Survey{primitive.NewObjectID(), surveyData.Description, surveyData.Questions}
+	survey := Survey{primitive.NewObjectID(), surveyData.Description, "timely", "" , surveyData.Questions}
 	createSurveyDocument(survey)
 
 	log.Printf("Survey Created: %v", survey)
@@ -111,7 +152,13 @@ func (s *server) GetAllSurveys(ctx context.Context, empty *pb.EmptySurvey) (*pb.
 
 func (s *server)  CreateQuestion(ctx context.Context, questionData *pb.Question) (*pb.Question, error) {
 
-	question := Question{primitive.NewObjectID(), questionData.Type, questionData.QuestionWithLanguage}
+	file, err := ioutil.ReadFile("barn.jpg")
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	question := Question{primitive.NewObjectID(), questionData.Type, file, questionData.QuestionWithLanguage}
 	createQuestionDocument(question)
 
 	log.Printf("Question Created: %v", question)

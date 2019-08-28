@@ -4,6 +4,7 @@ import (
 	pb "SurveyManagement/api"
 	"context"
 	"google.golang.org/grpc"
+	"io/ioutil"
 	"log"
 	"time"
 )
@@ -49,13 +50,13 @@ func main() {
 	qType := "matrix"
 
 	languageEn := "english"
-	textEn := "This is question 1"
+	textEn := "Tell us about your week"
 
-	matrixText1En := "How happy are you?"
-	options1En := []string{"happy", "normal", "sad"}
+	matrixText1En := "How active have you been?"
+	options1En := []string{"very active", "active", "not active at all"}
 	matrixOption1En := &pb.Question_MatrixOptions{Text: matrixText1En, Options: options1En}
 
-	matrixText2En := "How are you feeling?"
+	matrixText2En := "How are you feeling now?"
 	options2En := []string{"good", "normal", "bad"}
 	matrixOption2En := &pb.Question_MatrixOptions{Text: matrixText2En, Options: options2En}
 
@@ -63,13 +64,13 @@ func main() {
 	matrixOptionsEn = append(matrixOptionsEn, matrixOption1En, matrixOption2En)
 
 	languageDe := "german"
-	textDe := "Das ist Frage 1"
+	textDe := "Erzählen Sie uns von Ihrer Woche."
 
-	matrixText1De := "Wie glucklisch sind Sie?"
-	options1De := []string{"sehr", "normal", "traurig"}
+	matrixText1De := "Wie aktiv waren Sie?"
+	options1De := []string{"sehr aktiv", "aktiv", "nicht aktiv"}
 	matrixOption1De := &pb.Question_MatrixOptions{Text: matrixText1De, Options: options1De}
 
-	matrixText2De := "Wie geht es Ihnen?"
+	matrixText2De := "Wie geht es Ihnen heute?"
 	options2De := []string{"gut", "normal", "schlecht"}
 	matrixOption2De := &pb.Question_MatrixOptions{Text: matrixText2De, Options: options2De}
 
@@ -98,17 +99,21 @@ func main() {
 
 
 
+	file, err := ioutil.ReadFile("barn.jpg")
+
+	if err != nil {
+		panic(err.Error())
+	}
 
 
 
-
-	var question1 = &pb.Question{Id: "5d38cad2fc0b1b1fd7444274",Type: qType, QuestionWithLanguage: questionsWithLanguage}
+	var question1 = &pb.Question{Id: "5d667f707af26867861650d2", Type: qType, Image:file, QuestionWithLanguage: questionsWithLanguage}
 	//var question2  = &pb.Question{Type: qType, AnswerOptions: answerOptions2}
 
 	var questions []*pb.Question
 	questions = append(questions, question1)
 
-	var survey = pb.SurveyData{ Description: "This is a Survey", Questions: questions}
+	var survey = pb.SurveyData{ Description: "This is a Survey", Type: "timely", Questions: questions}
 	//createQuestion(c, question1)
 	createSurvey(c, survey)
 
