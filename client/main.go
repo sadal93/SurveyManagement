@@ -49,33 +49,52 @@ func main() {
 
 	qType := "matrix"
 
-	languageEn := "english"
 	textEn := "Tell us about your week"
+	textDe := "Erzählen Sie uns von Ihrer Woche."
+	text := make(map[string]string)
+	text["english"] = textEn
+	text["german"] = textDe
+
+	fileEn, err := ioutil.ReadFile("barn.jpg")
+	fileDe, err := ioutil.ReadFile("Meteora.jpg")
+
+	if err != nil {
+		panic(err.Error())
+	}
+	image := make(map[string] []byte)
+	image["english"] = fileEn
+	image["german"] = fileDe
 
 	matrixText1En := "How active have you been?"
-	options1En := []string{"very active", "active", "not active at all"}
-	matrixOption1En := &pb.Question_MatrixOptions{Text: matrixText1En, Options: options1En}
+	matrixText1De := "Wie aktiv waren Sie?"
+	matrixText1 := make(map[string]string)
+	matrixText1["english"] = matrixText1En
+	matrixText1["german"] = matrixText1De
+
+	options1En := pb.Question_Options{OptionText: []string{"very active", "active", "not active at all"}}
+	options1De := pb.Question_Options{OptionText: []string{"sehr aktiv", "aktiv", "nicht aktiv"}}
+	options1 := make(map[string] *pb.Question_Options)
+	options1["english"] = &options1En
+	options1["german"] = &options1De
+
+	matrixOption1 := &pb.Question_MatrixOptions{Text: matrixText1, MatrixOptions: options1, SelectedOption: ""}
 
 	matrixText2En := "How are you feeling now?"
-	options2En := []string{"good", "normal", "bad"}
-	matrixOption2En := &pb.Question_MatrixOptions{Text: matrixText2En, Options: options2En}
-
-	var matrixOptionsEn []*pb.Question_MatrixOptions
-	matrixOptionsEn = append(matrixOptionsEn, matrixOption1En, matrixOption2En)
-
-	languageDe := "german"
-	textDe := "Erzählen Sie uns von Ihrer Woche."
-
-	matrixText1De := "Wie aktiv waren Sie?"
-	options1De := []string{"sehr aktiv", "aktiv", "nicht aktiv"}
-	matrixOption1De := &pb.Question_MatrixOptions{Text: matrixText1De, Options: options1De}
-
 	matrixText2De := "Wie geht es Ihnen heute?"
-	options2De := []string{"gut", "normal", "schlecht"}
-	matrixOption2De := &pb.Question_MatrixOptions{Text: matrixText2De, Options: options2De}
+	matrixText2 := make(map[string]string)
+	matrixText2["english"] = matrixText2En
+	matrixText2["german"] = matrixText2De
 
-	var matrixOptionsDe []*pb.Question_MatrixOptions
-	matrixOptionsDe = append(matrixOptionsDe, matrixOption1De, matrixOption2De)
+	options2En := pb.Question_Options{OptionText: []string{"good", "normal", "bad"}}
+	options2De := pb.Question_Options{OptionText: []string{"gut", "normal", "schlecht"}}
+	options2 := make(map[string] *pb.Question_Options)
+	options2["english"] = &options2En
+	options2["german"] = &options2De
+
+	matrixOption2 := &pb.Question_MatrixOptions{Text: matrixText2, MatrixOptions: options2, SelectedOption: ""}
+
+	var matrixOptions []*pb.Question_MatrixOptions
+	matrixOptions = append(matrixOptions, matrixOption1, matrixOption2)
 
 
 
@@ -88,26 +107,17 @@ func main() {
 	nextQuestions = append(nextQuestions, nextQuestion)
 	answerOptions2 := &pb.Question_AnswerOptions{MultipleOptions: multipleOptions, NextQuestion: nextQuestions}*/
 
-	answerOptions1En := &pb.Question_AnswerOptions{MatrixOptions: matrixOptionsEn}
-	answerOptions1De := &pb.Question_AnswerOptions{MatrixOptions: matrixOptionsDe}
+	answerOptions := &pb.Question_AnswerOptions{MatrixOptions: matrixOptions}
 
-	questionWithLanguageEn := &pb.Question_QuestionWithLanguage{Language: languageEn, Text:	textEn, AnswerOptions:answerOptions1En}
-	questionWithLanguageDe := &pb.Question_QuestionWithLanguage{Language: languageDe, Text:	textDe, AnswerOptions:answerOptions1De}
-
-	var questionsWithLanguage []*pb.Question_QuestionWithLanguage
-	questionsWithLanguage = append(questionsWithLanguage, questionWithLanguageEn, questionWithLanguageDe)
+	questionWithLanguage := &pb.Question_QuestionWithLanguage{Text: text, Image: image, AnswerOptions : answerOptions}
 
 
 
-	file, err := ioutil.ReadFile("barn.jpg")
-
-	if err != nil {
-		panic(err.Error())
-	}
 
 
 
-	var question1 = &pb.Question{Id: "5d667f707af26867861650d2", Type: qType, Image:file, QuestionWithLanguage: questionsWithLanguage}
+
+	var question1 = &pb.Question{Id: "5d6928bee278a85b3f2c96d6",Type: qType, QuestionWithLanguage: questionWithLanguage}
 	//var question2  = &pb.Question{Type: qType, AnswerOptions: answerOptions2}
 
 	var questions []*pb.Question

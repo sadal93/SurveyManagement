@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
-	"io/ioutil"
 	"labix.org/v2/mgo/bson"
 	"log"
 	"net"
@@ -152,13 +151,13 @@ func (s *server) GetAllSurveys(ctx context.Context, empty *pb.EmptySurvey) (*pb.
 
 func (s *server)  CreateQuestion(ctx context.Context, questionData *pb.Question) (*pb.Question, error) {
 
-	file, err := ioutil.ReadFile("barn.jpg")
+	/*file, err := ioutil.ReadFile("barn.jpg")
 
 	if err != nil {
 		panic(err.Error())
-	}
+	}*/
 
-	question := Question{primitive.NewObjectID(), questionData.Type, file, questionData.QuestionWithLanguage}
+	question := Question{primitive.NewObjectID(), questionData.Type, *questionData.QuestionWithLanguage}
 	createQuestionDocument(question)
 
 	log.Printf("Question Created: %v", question)
@@ -188,7 +187,7 @@ func (s *server) GetQuestion(ctx context.Context, question *pb.QuestionID) (*pb.
 		log.Fatal(err)
 	}
 
-	return &pb.Question{Id: result.ID.Hex(), Type: result.Type, QuestionWithLanguage: result.QuestionsWithLanguage }, nil
+	return &pb.Question{Id: result.ID.Hex(), Type: result.Type, QuestionWithLanguage: &result.QuestionsWithLanguage }, nil
 
 }
 
@@ -200,7 +199,7 @@ func (s *server) GetAllQuestions(ctx context.Context, empty *pb.EmptySurvey) (*p
 		var question *pb.Question = new(pb.Question)
 		question.Id = document.ID.Hex()
 		question.Type = document.Type
-		question.QuestionWithLanguage = document.QuestionsWithLanguage
+		question.QuestionWithLanguage = &document.QuestionsWithLanguage
 
 
 		questions = append(questions, question)

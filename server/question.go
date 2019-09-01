@@ -12,8 +12,7 @@ import (
 type Question struct{
 	ID primitive.ObjectID `bson:"_id,omitempty"`
 	Type string
-	Image[] byte
-	QuestionsWithLanguage[]* pb.Question_QuestionWithLanguage
+	QuestionsWithLanguage pb.Question_QuestionWithLanguage
 }
 
 var questionCollection = client.Database("test").Collection("questions")

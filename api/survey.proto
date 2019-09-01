@@ -13,18 +13,27 @@ message Question{
 
     message OpenOptions{
         string dataType = 1;
-        string value = 2;
+        string openAnswer = 2;
         int32 limit = 3;
     }
 
-    message MultipleOptions{
-        repeated string multipleOptions = 1;
+    message Options{
+        repeated string optionText = 1;
+    }
+
+    message SingleOption{
+        map<string, Options> singleOptions = 1;
         string selectedOption = 2;
     }
 
+    message MultipleOptions{
+        map<string, Options> multipleOptions = 1;
+        repeated string selectedOptions = 2;
+    }
+
     message MatrixOptions{
-        string text = 1;
-        repeated string options = 2;
+        map <string, string> text = 1;
+        map<string, Options> matrixOptions = 2;
         string selectedOption = 3;
     }
 
@@ -34,15 +43,14 @@ message Question{
     }
 
     message QuestionWithLanguage {
-        string language = 1;
-        string text = 2;
-        AnswerOptions answerOptions = 3;
+        map<string, string> text = 2;
+        map<string, bytes> image = 3;
+        AnswerOptions answerOptions = 4;
     }
 
     string id = 1;
     string type = 2;
-    bytes image = 3;
-    repeated QuestionWithLanguage questionWithLanguage = 4;
+    QuestionWithLanguage questionWithLanguage = 4;
 
 }
 
