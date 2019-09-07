@@ -4,7 +4,6 @@ import (
 	pb "SurveyManagement/api"
 	"context"
 	"google.golang.org/grpc"
-	"io/ioutil"
 	"log"
 	"time"
 )
@@ -55,7 +54,7 @@ func main() {
 	text["english"] = textEn
 	text["german"] = textDe
 
-	fileEn, err := ioutil.ReadFile("barn.jpg")
+	/*fileEn, err := ioutil.ReadFile("barn.jpg")
 	fileDe, err := ioutil.ReadFile("Meteora.jpg")
 
 	if err != nil {
@@ -63,7 +62,7 @@ func main() {
 	}
 	image := make(map[string] []byte)
 	image["english"] = fileEn
-	image["german"] = fileDe
+	image["german"] = fileDe*/
 
 	matrixText1En := "How active have you been?"
 	matrixText1De := "Wie aktiv waren Sie?"
@@ -77,7 +76,7 @@ func main() {
 	options1["english"] = &options1En
 	options1["german"] = &options1De
 
-	matrixOption1 := &pb.Question_MatrixOptions{Text: matrixText1, MatrixOptions: options1, SelectedOption: ""}
+	matrixOption1 := &pb.Question_MatrixOptions{Text: matrixText1, Options: options1, SelectedOption: ""}
 
 	matrixText2En := "How are you feeling now?"
 	matrixText2De := "Wie geht es Ihnen heute?"
@@ -91,7 +90,7 @@ func main() {
 	options2["english"] = &options2En
 	options2["german"] = &options2De
 
-	matrixOption2 := &pb.Question_MatrixOptions{Text: matrixText2, MatrixOptions: options2, SelectedOption: ""}
+	matrixOption2 := &pb.Question_MatrixOptions{Text: matrixText2, Options: options2, SelectedOption: ""}
 
 	var matrixOptions []*pb.Question_MatrixOptions
 	matrixOptions = append(matrixOptions, matrixOption1, matrixOption2)
@@ -109,7 +108,7 @@ func main() {
 
 	answerOptions := &pb.Question_AnswerOptions{MatrixOptions: matrixOptions}
 
-	questionWithLanguage := &pb.Question_QuestionWithLanguage{Text: text, Image: image, AnswerOptions : answerOptions}
+	questionWithLanguage := &pb.Question_QuestionWithLanguage{Text: text, AnswerOptions : answerOptions}
 
 
 

@@ -14,11 +14,7 @@ import (
 )
 
 const (
-	address     = "localhost:50051"
-)
-
-const (
-	port = ":50052"
+	port = ":50051"
 )
 
 var clientOptions  = options.Client().ApplyURI("mongodb://localhost:27017")
@@ -99,7 +95,7 @@ func (s *server)  CreateSurvey(ctx context.Context, surveyData *pb.SurveyData) (
 	}
 	fmt.Println("Studies: " , r)*/
 
-	survey := Survey{primitive.NewObjectID(), surveyData.Description, "timely", "" , surveyData.Questions}
+	survey := Survey{primitive.NewObjectID(), surveyData.Description, surveyData.Type, surveyData.Study , surveyData.Questions}
 	createSurveyDocument(survey)
 
 	log.Printf("Survey Created: %v", survey)
